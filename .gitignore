@@ -1,0 +1,103 @@
+# -----------------------------
+# Python
+# -----------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+**/.ipynb_checkpoints/
+
+# Django/Flask/FastAPI logs or debug files
+*.log
+logs/
+*.sqlite3
+
+# IDE / Editor
+# VSCode
+.vscode/
+# PyCharm
+.idea/
+
+# OS generated files
+Thumbs.db
+.DS_Store
+
+# Environment variables / sensitive
+.env
+.env.*
+*.env
+*.ini
+*.cfg
+
+# -----------------------------
+# Project-specific ignores
+# -----------------------------
+
+# Compiled SQL or temp DB export files
+*.sql~
+*.tmp
+
+# Excel temporary files (데이터가 엑셀 기반이므로)
+~$*.xlsx
+
+# Exported data
+*.csv
+*.parquet
+*.pkl
+*.pickle
+
+# GraphQL client cache
+.graphql/
+
+# Jupyter .ipynb outputs(원하면 허용해도 됨)
+*.ipynb_checkpoints
+
+# __pycache__ inside su
+
+#data
+data/
+databases/
