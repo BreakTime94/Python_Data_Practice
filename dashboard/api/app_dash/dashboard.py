@@ -1,60 +1,173 @@
+import calendar
+
 import flask
 from dash import Dash, html, dcc, Input, Output
 from .graphql_client import fetch_sales_view_all
+from .modules.cards import bring_card_data
+from .modules.year_bar import year_bar_graph
+from .modules.year_month_line import year_month_graph
 
 flask_app = flask.Flask(__name__)
 
 dash_app = Dash(
-  __name__,
-  server=flask_app,
-  requests_pathname_prefix='/dashboard/',
-  suppress_callback_exceptions=True,
+    __name__,
+    server=flask_app,
+    requests_pathname_prefix="/dashboard/",
+    suppress_callback_exceptions=True,
 )
 
 def card_style():
-  return {
-    "flex": "1",
-    "margin": "0 10px",
-    "padding": "10px",
-    "backgroundColor": "#F8F9FA",
-    "borderRadius":"5px",
-    "boxShadow": "0 2px 6px rgba(0, 0, 0, 0.15)",
-    "textAlign": "center",
-  }
+    return {
+        "flex": "1",
+        "margin": "0 10px",
+        "padding": "20px",
+        "backgroundColor": "#F8F9FA",
+        "borderRadius": "10px",
+        "boxShadow": "0 2px 6px rgba(0,0,0,0.15)",
+        "textAlign": "center",
+    }
 
-dash_app.layout=html.Div(
-  style={"padding": "5px"},
-  children=[
-    html.H2("매출분석 대시보드", style={"textAlign": "center"}),
-      html.Div(
-       style={"display": "flex", "justifyContent": "space-between", "marginBottom": "30px"},
-        children=[
-          html.Div(style=card_style(), id="total_sales", children=[html.H4("총 매출액")]),
-          html.Div(style=card_style(), id="total_profit", children=[html.H4("순이익")]),
-          html.Div(style=card_style(), id="total_customer", children=[html.H4("총 고객수")]),
-          html.Div(style=card_style(), id="total_qnty", children=[html.H4("총 판매량")]),
-        ]
-      )
-  ]
+
+dash_app.layout = html.Div(
+    style={"padding": "20px"},
+    children=[
+        html.H2("매출 분석 대시보드", style={"textAlign": "center"}),
+        html.Div(
+            style={
+                "display": "flex",
+                "justifyContent": "space-between",
+                "marginBottom": "30px",
+            },
+            children=[
+                html.Div(id="card_total_sales", style=card_style(),  children =[html.H4('총매출액')]),
+                html.Div(id="card_total_profit", style=card_style(), children =[html.H4('전체 순이익')]),
+                html.Div(id="card_total_customers", style=card_style(),children =[html.H4('총 고객수')]),
+                html.Div(id="card_total_qnty", style=card_style(), children =[html.H4('총 판매수량')])
+            ]
+        ),
+        html.Div(
+            style={
+                "display": "flex",
+                "justifyContent": "space-between",
+                "marginBottom": "30px",
+            },
+            children=[
+                html.Div(
+                    dcc.Graph(id="chart-year-bar"),
+                    style={"flex": "1", "height": "380px"},
+                ),
+                html.Div(
+                    dcc.Graph(id="chart-year-line"),
+                    style={"flex": "1", "height": "380px"},
+                ),
+            ]
+        ),
+
+        html.Div(
+          children=[
+            html.Div(
+              children=[
+                html.Div(
+                  style={
+                    "display": "flex",
+                    "justifyContent": "space-between",
+                    "marginBottom": "30px",
+                  },
+                  children=[
+                    dcc.Dropdown(
+                      id="region-filter",
+                      options=[],  # 업그레이드 되는 장소
+                      value=None,
+                      placeholder="지역 선택(미선택 시 전체)",
+                      clearable=True,
+                      style={"width": "60%", "fontSize": "12px", "marginLeft": "auto"},
+                    )
+                  ]
+                ),
+                html.Div(
+                  dcc.Graph(id="region-sigungu-chart", style={"height": "100%", "width": "100%"}),
+                  style={
+                    "display": "flex",
+                    "justifyContent": "flex-end",
+                    "marginBottom": "6px",
+                    "width": "100%",
+                  },
+                ),
+              ]
+            ),
+            html.Div(
+              children=[
+                html.Div(
+                  style={
+                    "display": "flex",
+                    "justifyContent": "space-between",
+                    "marginBottom": "30px",
+                  },
+                  children=[
+                    dcc.Dropdown(
+                      id="category-filter",
+                      options=[{"label": "제품", "value": "productName"}, {"label": "제품분류", "value": "productCategoryName"}, {"label": "대분류", "value":"categoryName"}],  # 업그레이드 되는 장소
+                      value=None,
+                      placeholder="지역 선택(미선택 시 전체)",
+                      clearable=True,
+                      style={"width": "60%", "fontSize": "12px", "marginLeft": "auto"},
+                    )
+                  ]
+                ),
+                html.Div(
+                  dcc.Graph(id="category-treemap", style={"height": "100%", "width": "100%"}),
+                  style={
+                    "display": "flex",
+                    "justifyContent": "flex-end",
+                    "marginBottom": "6px",
+                    "width": "100%",
+                  },
+                ),
+              ]
+            )
+          ]
+        ),
+    ]
 )
-
-
-# Output : return하는 값, Input: parameter
+import plotly.express as px
+# Output: return, Input: parameter
 @dash_app.callback(
-  [
-    Output("total_sales", "children"),
-    Output("total_profit", "children"),
-    Output("total_customer", "children"),
-    Output("total_qnty", "children"),
-  ],
-  Input("total_sales", "value"),
+    [
+        Output("card_total_sales", "children"),
+        Output("card_total_profit", "children"),
+        Output("card_total_customers", "children"),
+        Output("card_total_qnty", "children"),
+        Output("chart-year-bar", "figure"),
+        Output("chart-year-line", "figure"),
+        Output("region-filter", "options"),
+        Output("region-sigungu-chart", "figure"),
+        Output("category-filter", "options"),
+        Output("category-treemap", "figure"),
+    ],
+    [Input("region-filter", "value"), Input("category-filter", "value")],
 
 )
-def update_dashboard(value):
-  df = fetch_sales_view_all()
-  return (
-    [html.H2("총 매출액"), html.H2("1200원")],
-    [html.H2("총 매출액"), html.H2("1200원")],
-    [html.H2("총 매출액"), html.H2("1200원")],
-    [html.H2("총 매출액"), html.H2("1200원")]
-  )
+def update_dashboard(selected_region, selected_category):
+    df = fetch_sales_view_all()
+
+    region_options = [{"label":region, "value": region} for region in df["region"].drop_duplicates().tolist()]
+
+    sigungu =df[df["region"] == selected_region].groupby("sigungu", as_index=False)["salesAmount"].sum()
+
+    fig_bar_year = year_bar_graph(df)
+    fig_line_year = year_month_graph(df)
+    fig_bar_sigungu = px.bar(
+      sigungu,
+      x="sigungu",
+      y="salesAmount",
+    )
+    cardData = bring_card_data(df)
+
+
+    return (
+        [html.H4("총매출액"), html.H2(f"{cardData['total_sales']:,}원")],
+        [html.H4("총매출액"), html.H2(f"{cardData['total_profit']:,}원")],
+        [html.H4("총매출액"), html.H2(f"{cardData['total_customers']:,}명")],
+        [html.H4("총매출액"), html.H2(f"{cardData['total_qnty']:,}건수")],
+        fig_bar_year, fig_line_year, region_options, fig_bar_sigungu, "category-filter", "category-treemap"
+    )

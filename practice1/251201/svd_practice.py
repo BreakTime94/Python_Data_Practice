@@ -2,8 +2,10 @@ import numpy as np, pandas as pd
 import pickle
 from sklearn.decomposition import TruncatedSVD
 from  scipy.sparse.linalg import svds
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import StandardScaler
 
-  # df = pd.read_csv('../data/ratings.dat', sep="::", engine='python')
+# df = pd.read_csv('../data/ratings.dat', sep="::", engine='python')
   # df.columns = ["user_id", "movie_id", "rating", "timestamp"]
   # df.drop('timestamp', axis=1, inplace=True)
   # df.to_pickle('../data/ratings.pkl')
@@ -24,10 +26,11 @@ from  scipy.sparse.linalg import svds
   # df.to_pickle("../data/pivot_ratings_with_means.pkl")
 if __name__ == "__main__":
   X = pd.read_pickle("../data/pivot_ratings_with_means.pkl").values
-  # U, S, VT = np.linalg.svd(df, full_matrices=False)
-  # svd = TruncatedSVD(n_components=2)
-  # A_reduced = svd.fit_transform(X)
-  # print(A_reduced.shape)
+  
+  U, S, VT = np.linalg.svd(X, full_matrices=False)
+  svd = TruncatedSVD(n_components=2)
+  A_reduced = svd.fit_transform(X)
+  print(A_reduced.shape)
 
   U, S, VT = svds(X, k=5)
   print(S)

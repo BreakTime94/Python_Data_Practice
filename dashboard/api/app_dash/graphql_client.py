@@ -26,8 +26,15 @@ def fetch_sales_view_all(limit: int = 20000) -> pd.DataFrame:
       }
       """
 
-  resp = requests.post(url, json={'query': query, "variables": {"limit": 1000}})
+  resp = requests.post(url, json={'query': query, "variables": {"limit": limit}})
   data = resp.json()
   sales_view_json = data.get("data").get("salesViewAll")
   return pd.DataFrame(sales_view_json)
 
+if __name__ == "__main__":
+  df = fetch_sales_view_all()
+  # regions = df["region"].drop_duplicates().tolist()
+  # print(regions)
+
+  data = df[df["region"] == "서울"]
+  print(data.shape)
