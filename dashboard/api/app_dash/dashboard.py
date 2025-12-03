@@ -2,8 +2,12 @@ import calendar
 
 import flask
 from dash import Dash, html, dcc, Input, Output
+from plotly.express import treemap
+
 from .graphql_client import fetch_sales_view_all
 from .modules.cards import bring_card_data
+from .modules.category_product_treemap import category_product_treemap_graph
+from .modules.region_sigungu_bar import region_sigungu_bar_graph
 from .modules.year_bar import year_bar_graph
 from .modules.year_month_line import year_month_graph
 
@@ -64,6 +68,11 @@ dash_app.layout = html.Div(
         ),
 
         html.Div(
+          style={
+            # "display": "flex",
+            # "justifyContent": "center",
+            # "marginBottom": "30px",
+          },
           children=[
             html.Div(
               children=[
@@ -77,7 +86,7 @@ dash_app.layout = html.Div(
                     dcc.Dropdown(
                       id="region-filter",
                       options=[],  # 업그레이드 되는 장소
-                      value=None,
+                      value="서울",
                       placeholder="지역 선택(미선택 시 전체)",
                       clearable=True,
                       style={"width": "60%", "fontSize": "12px", "marginLeft": "auto"},
@@ -95,6 +104,7 @@ dash_app.layout = html.Div(
                 ),
               ]
             ),
+
             html.Div(
               children=[
                 html.Div(
@@ -107,8 +117,8 @@ dash_app.layout = html.Div(
                     dcc.Dropdown(
                       id="category-filter",
                       options=[{"label": "제품", "value": "productName"}, {"label": "제품분류", "value": "productCategoryName"}, {"label": "대분류", "value":"categoryName"}],  # 업그레이드 되는 장소
-                      value=None,
-                      placeholder="지역 선택(미선택 시 전체)",
+                      value="대분류",
+                      placeholder="분류",
                       clearable=True,
                       style={"width": "60%", "fontSize": "12px", "marginLeft": "auto"},
                     )
@@ -130,6 +140,7 @@ dash_app.layout = html.Div(
     ]
 )
 import plotly.express as px
+
 # Output: return, Input: parameter
 @dash_app.callback(
     [
@@ -150,18 +161,13 @@ import plotly.express as px
 def update_dashboard(selected_region, selected_category):
     df = fetch_sales_view_all()
 
-    region_options = [{"label":region, "value": region} for region in df["region"].drop_duplicates().tolist()]
-
-    sigungu =df[df["region"] == selected_region].groupby("sigungu", as_index=False)["salesAmount"].sum()
+    region_options, fig_bar_sigungu = region_sigungu_bar_graph(df, selected_region)
 
     fig_bar_year = year_bar_graph(df)
     fig_line_year = year_month_graph(df)
-    fig_bar_sigungu = px.bar(
-      sigungu,
-      x="sigungu",
-      y="salesAmount",
-    )
     cardData = bring_card_data(df)
+
+    treemap_options, fig_treemap = category_product_treemap_graph(df, selected_category)
 
 
     return (
@@ -169,5 +175,5 @@ def update_dashboard(selected_region, selected_category):
         [html.H4("총매출액"), html.H2(f"{cardData['total_profit']:,}원")],
         [html.H4("총매출액"), html.H2(f"{cardData['total_customers']:,}명")],
         [html.H4("총매출액"), html.H2(f"{cardData['total_qnty']:,}건수")],
-        fig_bar_year, fig_line_year, region_options, fig_bar_sigungu, "category-filter", "category-treemap"
+        fig_bar_year, fig_line_year, region_options, fig_bar_sigungu, treemap_options, fig_treemap
     )

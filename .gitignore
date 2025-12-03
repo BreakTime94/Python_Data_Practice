@@ -89,6 +89,8 @@ Thumbs.db
 *.parquet
 *.pkl
 *.pickle
+*.pt
+*.dat
 
 # GraphQL client cache
 .graphql/
@@ -100,4 +102,8 @@ Thumbs.db
 
 #data
 data/
-databases/
+database/
+
+#model
+model/
+
