@@ -44,3 +44,11 @@
 * Dash + Plotly 활용하여 대시보드 구현
 
 ---
+
+## 📅 2025.12.03 (수)
+
+### **Python 데이터 기반 추천시스템 딥러닝 코드 작성 **
+
+* deeplearning 코드 작성 및 모델 생성
+* localhost api 호출을 통한 추천 시스템 test
+* Dash + Plotly 활용하여 대시보드 구현 마무리
