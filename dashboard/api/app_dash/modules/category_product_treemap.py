@@ -17,11 +17,16 @@ def category_product_treemap_graph(df, selected_category):
     path = ["categoryName", "productCategoryName", "productName"]
     treemap_df = df.groupby(path, as_index=False)['salesAmount'].sum()
 
-  fig_treemmap = px.treemap(
+  fig_treemap = px.treemap(
     treemap_df,
     path=path,
     values="salesAmount",
     color="salesAmount",
+    color_continuous_scale="YlGnBu",
+  )
+  fig_treemap.update_layout(
+    margin=dict(t=30, l=10, r=10, b=10),
+    paper_bgcolor="white",
   )
 
-  return treemap_options, fig_treemmap
+  return treemap_options, fig_treemap
