@@ -84,13 +84,15 @@ Thumbs.db
 # Excel temporary files (데이터가 엑셀 기반이므로)
 ~$*.xlsx
 
-# Exported data
+# Exported data(model 포함)
 *.csv
 *.parquet
 *.pkl
 *.pickle
 *.pt
 *.dat
+*.png
+*.pth
 
 # GraphQL client cache
 .graphql/
@@ -104,6 +106,6 @@ Thumbs.db
 data/
 database/
 
-#model
-model/
-
+#학습 결과물
+classifier/
+epoch_info.json
